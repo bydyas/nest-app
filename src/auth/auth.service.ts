@@ -12,6 +12,7 @@ import { MailService } from 'src/mail/mail.service';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { SignInDto } from './dtos/sign-in.dto';
 import { ConfigService } from '@nestjs/config';
+import { ResendEmailDto } from './dtos/resend-email.dto';
 
 @Injectable()
 export class AuthService {
@@ -72,9 +73,16 @@ export class AuthService {
     const payload = { sub: user._id };
     const access_token = await this.jwtService.signAsync(payload);
 
-    await this.mailService.sendConfirmation(user, access_token);
+    await this.mailService.sendConfirmation(user.email.address, access_token);
     return {
       access_token,
     };
+  }
+
+  async resendEmail(resendEmailDto: ResendEmailDto) {
+    return await this.mailService.sendConfirmation(
+      resendEmailDto.to,
+      resendEmailDto.token,
+    );
   }
 }
